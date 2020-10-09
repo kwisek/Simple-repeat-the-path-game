@@ -50,49 +50,49 @@ BIGCOURIER = pygame.font.SysFont('Courier', 40)
 global hQuery
 hQuery = []
 
-def ReturnSquare(mouseX, mouseY):
+def return_square_coords(mouseX, mouseY):
     for i in range(0,5):
         for j in range(0,5):
             if 5 * (i + 1) + 50 * i <= mouseX and mouseX <= 5 * (i + 1) + 50 * i + 50:
                 if 40 + 5 * (j + 1) + 50 * j <= mouseY and mouseY <= 40 + 5 * (j + 1) + 50 * j + 50:
                     return (i, j)
 
-def DrawSquare(x, y, color):
+def draw_square(x, y, color):
     pygame.draw.rect(window, color, [5 * (x + 1) + 50 * x, 40 + 5 * (y + 1) + 50 * y, REC_SIZE, REC_SIZE])
 
-def HighlightSquare(i, j, color):
-    PlaySound(i + j * 5)
-    DrawSquare(i, j, color)
+def highlight_square(i, j, color):
+    play_sound(i + j * 5)
+    draw_square(i, j, color)
     pygame.display.update()
     hQuery.append((i, j, time.time() + 0.5))
 
-def DrawWindow():
+def draw_window():
     window.fill(DARK_GREY)
 
     for i in range(0, 5):
         for j in range(0, 5):
-            DrawSquare(i, j, BLACK)
+            draw_square(i, j, BLACK)
 
     pygame.display.update()
 
-def RenderScoreboard(level, score):
+def render_scoreboard(level, score):
     pygame.draw.rect(window, DARK_GREY, [0, 0, 280, 40])
     return COURIER.render("LEVEL: " + str(level) + "   SCORE: " + str(score), False, (255, 255, 255))
 
-def PlaySound(name):
+def play_sound(name):
     pygame.mixer.music.load("sounds/" + str(name) + ".wav")
     pygame.mixer.music.play()
 
-def Update():
+def win_update():
     for thread in hQuery:
         if (thread[2] < time.time()):
-            DrawSquare(thread[0], thread[1], BLACK)
+            draw_square(thread[0], thread[1], BLACK)
             pygame.display.update()
             hQuery.remove(thread)
 
-def OverScreen(level, score):
+def print_gameover_screen(level, score):
     window.fill(DARK_GREY)
-    window.blit(RenderScoreboard(level, score), (25, 150))
+    window.blit(render_scoreboard(level, score), (25, 150))
     window.blit(BIGCOURIER.render("GAME OVER!", False, (255, 255, 255)), (20, 15))
     window.blit(COURIER.render("Your stats:", False, (255, 255, 255)), (70, 100))
     window.blit(COURIER.render("Thanks for playing!", False, (255, 255, 255)), (30, 250))
@@ -115,14 +115,14 @@ patterns = []
 playerPattern = []
 patternNo = 0
 
-DrawWindow()
+draw_window()
 
 pygame.time.wait(2000)
 
 while inGame:
-    window.blit(RenderScoreboard(level, score), (10, 15))
+    window.blit(render_scoreboard(level, score), (10, 15))
 
-    Update()
+    win_update()
 
     # GENERATING NEW LEVEL FOLLOWED BY THE DISPLAY OF ALL RECENT PATTERNS
     if playerTurn == False:
@@ -134,10 +134,10 @@ while inGame:
         pygame.time.wait(500)
 
         for pattern in patterns:
-            Update()
+            win_update()
             pygame.time.wait(200)
-            HighlightSquare(pattern[0], pattern[1], COLORS[(pattern[0] + 5 * pattern[1])])
-            Update()
+            highlight_square(pattern[0], pattern[1], COLORS[(pattern[0] + 5 * pattern[1])])
+            win_update()
             pygame.time.wait(500)
 
         playerTurn = True
@@ -151,18 +151,18 @@ while inGame:
                     playerPattern.pop()
                 else:
                     for i in range(0, 3):
-                        HighlightSquare(patterns[patternNo][0], patterns[patternNo][1], (155, 0, 0))
-                        HighlightSquare(playerPattern[0][0], playerPattern[0][1], (155, 0, 0))
+                        highlight_square(patterns[patternNo][0], patterns[patternNo][1], (155, 0, 0))
+                        highlight_square(playerPattern[0][0], playerPattern[0][1], (155, 0, 0))
                         pygame.time.wait(300)
-                        HighlightSquare(patterns[patternNo][0], patterns[patternNo][1], (0, 0, 0))
-                        HighlightSquare(playerPattern[0][0], playerPattern[0][1], (0, 0, 0))
+                        highlight_square(patterns[patternNo][0], patterns[patternNo][1], (0, 0, 0))
+                        highlight_square(playerPattern[0][0], playerPattern[0][1], (0, 0, 0))
                         pygame.time.wait(300)
 
                     patterns.clear()
                     playerPattern.clear()
                     inGame = False
         else:
-            Update()
+            win_update()
             patternNo = 0
             score += level
             level += 1
@@ -187,14 +187,14 @@ while inGame:
 
             if event.type == pygame.MOUSEBUTTONDOWN and playerTurn == True:
                 mousePos = pygame.mouse.get_pos()
-                clickedSquare = ReturnSquare(mousePos[0], mousePos[1])
+                clickedSquare = return_square_coords(mousePos[0], mousePos[1])
 
                 if (clickedSquare != None):
                     playerPattern.append(clickedSquare)
-                    HighlightSquare(clickedSquare[0], clickedSquare[1], COLORS[clickedSquare[0] + 5 * clickedSquare[1]])
+                    highlight_square(clickedSquare[0], clickedSquare[1], COLORS[clickedSquare[0] + 5 * clickedSquare[1]])
 
 
-OverScreen(level, score)
+print_gameover_screen(level, score)
 
 pygame.display.quit()
 pygame.quit()
